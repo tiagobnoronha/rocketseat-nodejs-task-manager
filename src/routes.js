@@ -1,18 +1,37 @@
+import { randomUUID } from "node:crypto";
 import { buildRoutePath } from "./util/build-route-path.js";
+import { Database } from "./database.js";
 
-
+const database = new Database();
 
 export const routes = [
   {
     method: 'POST',
     path: buildRoutePath('/tasks'),
-    handler: (req, res) => res.end("Rota não implementada")
+    handler: (req, res) => {
+      const newTask = {
+        id: randomUUID(),
+        ...req.body,
+        completed_at: null,
+        created_at: Date.now(),
+        updated_at: Date.now()
+      }
+
+      database.insert("tasks", newTask);
+
+      return res.writeHead(201).end();
+
+    }
 
   },
   {
     method: 'GET',
     path: buildRoutePath('/tasks'),
-    handler: (req, res) => res.end("Rota não implementada")
+    handler: (_, res) => {
+      const tasks = database.select('tasks')
+
+      return res.end(JSON.stringify({ tasks }))
+    }
   },
   {
     method: 'PUT',
