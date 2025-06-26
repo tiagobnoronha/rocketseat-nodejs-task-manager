@@ -9,12 +9,14 @@ export const routes = [
     method: 'POST',
     path: buildRoutePath('/tasks'),
     handler: (req, res) => {
+      const nowStr = (new Date()).toISOString()
+
       const newTask = {
         id: randomUUID(),
         ...req.body,
         completed_at: null,
-        created_at: Date.now(),
-        updated_at: Date.now()
+        created_at: nowStr,
+        updated_at: nowStr
       }
 
       database.insert("tasks", newTask);
@@ -36,7 +38,19 @@ export const routes = [
   {
     method: 'PUT',
     path: buildRoutePath('/tasks/:id'),
-    handler: (req, res) => res.end(JSON.stringify({ method: 'put', params: req.params }))
+    handler: (req, res) => {
+      const { id } = req.params;
+      const nowStr = (new Date()).toISOString()
+      const tasks = database.select('tasks')
+      const indexTask = tasks.findIndex((task) => task.id === id)
+
+      if (indexTask === -1) return res.writeHead(404).end();
+
+      tasks[indexTask] = { ...tasks[indexTask], ...req.body, updated_at: nowStr }
+
+      return res.writeHead(204).end()
+
+    }
   },
   {
     method: 'DELETE',
