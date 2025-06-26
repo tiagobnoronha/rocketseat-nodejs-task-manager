@@ -35,23 +35,23 @@ export class Database {
   update(table, id, data) {
     const rowIndex = this.#database[table].findIndex((row) => row.id === id);
 
-    if (rowIndex > -1) {
-      const oldData = this.#database[table][rowIndex]
-      this.#database[table][rowIndex] = { ...oldData, ...data }
-      this.#persist()
-    }
+    if (rowIndex === -1) return false
+
+    const oldData = this.#database[table][rowIndex]
+    this.#database[table][rowIndex] = { ...oldData, ...data }
+    this.#persist()
+    return true;
+
   }
 
   delete(table, id) {
     const rowIndex = this.#database[table].findIndex((row) => row.id === id);
 
-    if (rowIndex > -1) {
-      this.#database[table].splice(rowIndex, 1);
-      this.#persist()
-      return true
-    }
+    if (rowIndex === -1) return false
 
-    return false
+    this.#database[table].splice(rowIndex, 1);
+    this.#persist()
+    return true
   }
 
 
