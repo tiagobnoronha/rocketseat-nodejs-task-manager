@@ -40,14 +40,14 @@ export const routes = [
     path: buildRoutePath('/tasks/:id'),
     handler: (req, res) => {
       const { id } = req.params;
+      const { title, description } = req.body;
       const nowStr = (new Date()).toISOString()
-      const tasks = database.select('tasks')
-      const indexTask = tasks.findIndex((task) => task.id === id)
 
-      if (indexTask === -1) return res.writeHead(404).end();
-
-      tasks[indexTask] = { ...tasks[indexTask], ...req.body, updated_at: nowStr }
-
+      database.update('tasks', id, {
+        title,
+        description,
+        updated_at: nowStr
+      })
       return res.writeHead(204).end()
 
     }
@@ -55,7 +55,12 @@ export const routes = [
   {
     method: 'DELETE',
     path: buildRoutePath('/tasks/:id'),
-    handler: (req, res) => res.end(JSON.stringify({ method: 'delete', params: req.params }))
+    handler: (req, res) => {
+      const { id } = req.params;
+
+
+      return database.delete('tasks', id) ? res.writeHead(204).end() : res.writeHead(404).end()
+    }
   },
   {
     method: 'PATCH',
