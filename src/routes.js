@@ -44,14 +44,23 @@ export const routes = [
     path: buildRoutePath('/tasks/:id'),
     handler: (req, res) => {
       const { id } = req.params;
-      const { title, description } = req.body;
-      const nowStr = (new Date()).toISOString()
+      const task = database.select('tasks').find((tsk) => tsk.id === id);
+      const updated_at = (new Date()).toISOString()
 
-      return database.update('tasks', id, {
-        title,
-        description,
-        updated_at: nowStr
-      }) ? res.writeHead(204).end() : res.writeHead(404).end()
+
+      if (task) {
+
+        const { title = task.title, description = task.description } = req.body;
+        database.update('tasks', id, {
+          title,
+          description,
+          updated_at
+        })
+
+        return res.writeHead(204).end();
+      }
+
+      return res.writeHead(404).end()
 
     }
   },
@@ -70,6 +79,7 @@ export const routes = [
       const { id } = req.params;
       const nowStr = (new Date()).toISOString()
 
+      const task = this.database.select().filter()
       return database.update('tasks', id, {
         completed_at: nowStr,
         updated_at: nowStr
