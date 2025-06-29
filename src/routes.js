@@ -24,13 +24,17 @@ export const routes = [
       return res.writeHead(201).end();
 
     }
-
   },
   {
     method: 'GET',
     path: buildRoutePath('/tasks'),
-    handler: (_, res) => {
+    handler: (req, res) => {
+      const search = req.query.search ?? "";
       const tasks = database.select('tasks')
+        .filter(
+          (task) =>
+            task.title.toLowerCase().includes(search) || task.description.toLowerCase().includes(search)
+        )
 
       return res.end(JSON.stringify({ tasks }))
     }
@@ -70,8 +74,6 @@ export const routes = [
         completed_at: nowStr,
         updated_at: nowStr
       }) ? res.writeHead(204).end() : res.writeHead(404).end()
-
-
     }
   },
 ]
