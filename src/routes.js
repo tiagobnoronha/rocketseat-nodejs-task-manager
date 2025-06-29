@@ -11,6 +11,9 @@ export const routes = [
     handler: (req, res) => {
       const nowStr = (new Date()).toISOString()
 
+      if (!req.body.title || !req.body.description)
+        return res.writeHead(400).end("Request body must contain title and description fields.")
+
       const newTask = {
         id: randomUUID(),
         ...req.body,
@@ -60,7 +63,7 @@ export const routes = [
         return res.writeHead(204).end();
       }
 
-      return res.writeHead(404).end()
+      return res.writeHead(404).end("Task not found.")
 
     }
   },
@@ -69,7 +72,7 @@ export const routes = [
     path: buildRoutePath('/tasks/:id'),
     handler: (req, res) => {
       const { id } = req.params;
-      return database.delete('tasks', id) ? res.writeHead(204).end() : res.writeHead(404).end()
+      return database.delete('tasks', id) ? res.writeHead(204).end() : res.writeHead(404).end("Task not found.")
     }
   },
   {
@@ -83,7 +86,7 @@ export const routes = [
       return task && database.update('tasks', id, {
         completed_at: task.completed_at ? null : nowStr,
         updated_at: nowStr
-      }) ? res.writeHead(204).end() : res.writeHead(404).end()
+      }) ? res.writeHead(204).end() : res.writeHead(404).end("Task not found.")
     }
   },
 ]
