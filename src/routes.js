@@ -77,11 +77,11 @@ export const routes = [
     path: buildRoutePath('/tasks/:id/complete'),
     handler: (req, res) => {
       const { id } = req.params;
+      const task = database.select('tasks').find((tsk) => tsk.id === id);
       const nowStr = (new Date()).toISOString()
 
-      const task = this.database.select().filter()
-      return database.update('tasks', id, {
-        completed_at: nowStr,
+      return task && database.update('tasks', id, {
+        completed_at: task.completed_at ? null : nowStr,
         updated_at: nowStr
       }) ? res.writeHead(204).end() : res.writeHead(404).end()
     }
