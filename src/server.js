@@ -1,13 +1,16 @@
 import http from 'node:http'
 import { routes } from './routes.js';
 import { json } from './middlewares/json.js';
+
 import { extractQueryParams } from './util/extract-query-params.js';
+import { csv } from './middlewares/csv.js';
 
 
 const server = http.createServer(async (req, res) => {
   const { method, url } = req;
 
   await json(req, res)
+  await csv(req, res)
 
   const route = routes.find(
     route =>

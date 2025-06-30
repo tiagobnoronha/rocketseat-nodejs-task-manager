@@ -11,21 +11,36 @@ export const routes = [
     handler: (req, res) => {
       const nowStr = (new Date()).toISOString()
 
-      if (!req.body.title || !req.body.description)
-        return res.writeHead(400).end("Request body must contain title and description fields.")
+      switch (req.headers['content-type']) {
+        case 'application/json':
+          if (!req.body.title || !req.body.description)
+            return res.writeHead(400).end("Request body must contain title and description fields.")
 
-      const newTask = {
-        id: randomUUID(),
-        ...req.body,
-        completed_at: null,
-        created_at: nowStr,
-        updated_at: nowStr
+          const newTask = {
+            id: randomUUID(),
+            ...req.body,
+            completed_at: null,
+            created_at: nowStr,
+            updated_at: nowStr
+          }
+
+          database.insert("tasks", newTask)
+
+          return res.writeHead(201).end()
+
+        case 'text/plain':
+          for (let task of req.body) {
+            task.completed_at = null
+            task.created_at = task.updated_at = nowStr
+
+            database.insert("tasks", task)
+          }
+
+          return res.writeHead(201).end()
+
+        default:
+          return res.writeHead(400).end("Invalid body format")
       }
-
-      database.insert("tasks", newTask);
-
-      return res.writeHead(201).end();
-
     }
   },
   {
